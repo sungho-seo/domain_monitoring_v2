@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Domain Monitoring (SSL Audit)</title>
+  <link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- KPI -->
+    <section class="kpis">
+      <div class="card kpi total" data-filter="all" title="모든 도메인 보기">
+        <div class="label">총 도메인</div><div class="value" id="kpi-total">0</div>
+        <div class="label" id="kpi-total-sub">-</div>
+      </div>
+      <div class="card kpi green" data-filter="normal" title="정상 도메인">
+        <div class="label">정상</div><div class="value" id="kpi-normal">0</div>
+        <div class="label" id="kpi-normal-sub">-</div>
+      </div>
+      <div class="card kpi amber" data-filter="warning" title="주의 대상">
+        <div class="label">주의</div><div class="value" id="kpi-warning">0</div>
+        <div class="label" id="kpi-warning-sub">-</div>
+      </div>
+      <div class="card kpi red" data-filter="critical" title="긴급 조치 필요">
+        <div class="label">긴급</div><div class="value" id="kpi-critical">0</div>
+        <div class="label" id="kpi-critical-sub">-</div>
+      </div>
+      <div class="card kpi purple" data-filter="ssl-expired" title="SSL 인증서 만료">
+        <div class="label">인증서 만료</div><div class="value" id="kpi-ssl-expired">0</div>
+        <div class="label" id="kpi-ssl-expired-sub">-</div>
+      </div>
+      <div class="card kpi blue" data-filter="ssl-cn" title="CN/SAN 불일치 → 인증서 재발급">
+        <div class="label">인증서 재발급</div><div class="value" id="kpi-ssl-cn">0</div>
+        <div class="label" id="kpi-ssl-cn-sub">-</div>
+      </div>
+      <div class="card kpi blue" data-filter="net-issue" title="DNS/Timeout/연결 실패">
+        <div class="label">네트워크 실패</div><div class="value" id="kpi-net">0</div>
+        <div class="label" id="kpi-net-sub">-</div>
+      </div>
+    </section>
+
+    <!-- Tabs -->
+    <div class="tabsbar">
+      <button class="tabbtn active" data-tab="domains">도메인</button>
+      <button class="tabbtn" data-tab="shots">스크린샷 뷰어</button>
+    </div>
+
+    <!-- selectors -->
+    <div class="selectors">
+      <select id="runSelect" title="모니터링 날짜"></select>
+      <select id="dsSelect" title="도메인 구분"></select>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <button class="btn active" data-filter="all"          title="모든 도메인">전체</button>
+      <button class="btn"        data-filter="normal"       title="정상">정상</button>
+      <button class="btn"        data-filter="warning"      title="주의">주의</button>
+      <button class="btn"        data-filter="critical"     title="긴급">긴급</button>
+
+      <button class="btn"        data-filter="ssl-expired"  title="인증서 만료">만료</button>
+      <button class="btn"        data-filter="ssl-7d"       title="만료 임박(≤7일)">D≤7</button>
+      <button class="btn"        data-filter="ssl-30d"      title="만료 예정(≤30일)">D≤30</button>
+
+      <button class="btn"        data-filter="ssl-cn"       title="CN/SAN 불일치">재발급</button>
+
+      <button class="btn"        data-filter="net-issue"    title="DNS/Timeout/연결 실패">네트워크</button>
+      <button class="btn"        data-filter="dns-fail"     title="DNS 오류만 보기">DNS</button>
+      <button class="btn"        data-filter="timeout"      title="Timeout만 보기">Timeout</button>
+      <button class="btn"        data-filter="connect-fail" title="기타 연결 실패">Connect</button>
+
+      <button class="btn"        data-filter="chain-issue"  title="체인/신뢰 오류">체인</button>
+      <button class="btn"        data-filter="tls-issue"    title="TLS 설정 오류">TLS</button>
+      <button class="btn"        data-filter="http-exposed" title="HTTP로 노출됨">HTTP</button>
+
+      <button class="btn"        data-filter="has-screenshot" title="스크린샷 존재 도메인">스크린샷</button>
+
+      <div class="search">
+        <input id="search" type="search" placeholder="도메인/D-Day/권고/아이덴티티/체인/TLS/원본 검색…" aria-label="검색" />
+      </div>
+    </div>
+
+    <!-- Domains Tab -->
+    <div id="tab-domains" class="card">
+      <div class="table-wrap">
+        <table id="table">
+          <thead>
+            <tr>
+              <th>도메인</th>
+              <th>위험도</th>
+              <th>D-Day</th>
+              <th>AI 판정</th>
+              <th>아이덴티티</th>
+              <th>체인</th>
+              <th>TLS</th>
+              <th>권고</th>
+              <th>원본</th>
+              <th>이미지</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Shots Tab -->
+    <div id="tab-shots" class="card" style="display:none">
+      <div id="shotsStream"></div>
+    </div>
+
+    <!-- Floating Home -->
+    <div class="floating"><button id="btnHome" class="btn-home" title="맨 위로">Home</button></div>
+
+    <!-- Raw Modal -->
+    <div id="rawModal" class="modal" aria-hidden="true">
+      <div class="panel">
+        <header>
+          <div class="title">원본 보기</div>
+          <div class="tabs">
+            <button data-pane="overview" class="active">개요</button>
+            <button data-pane="json">JSON</button>
+            <button data-close>닫기</button>
+          </div>
+        </header>
+        <div class="content">
+          <div id="pane-overview"></div>
+          <div id="pane-json" style="display:none"><pre id="pre-json"></pre></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="js/app.js?v=ssl_audit_full2"></script>
+</body>
+</html>
