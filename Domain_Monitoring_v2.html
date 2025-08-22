@@ -51,6 +51,12 @@
     <div class="selectors">
       <select id="runSelect" title="모니터링 날짜"></select>
       <select id="dsSelect" title="도메인 구분"></select>
+      <div class="spacer"></div>
+      <div class="search">
+        <input id="search" type="search"
+              placeholder="도메인/D-Day/권고/아이덴티티/체인/TLS/원본 검색…"
+              aria-label="검색" />
+      </div>
     </div>
 
     <!-- Filters -->
@@ -76,10 +82,6 @@
       <button class="btn"        data-filter="http-exposed" title="HTTP로 노출됨">HTTP</button>
 
       <button class="btn"        data-filter="has-screenshot" title="스크린샷 존재 도메인">스크린샷</button>
-
-      <div class="search">
-        <input id="search" type="search" placeholder="도메인/D-Day/권고/아이덴티티/체인/TLS/원본 검색…" aria-label="검색" />
-      </div>
     </div>
 
     <!-- Domains Tab -->

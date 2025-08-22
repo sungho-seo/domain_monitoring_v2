@@ -1,3 +1,4 @@
+
 /* base.css (필요 최소치만, 기존 스타일과 충돌 최소화) */
 body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:0;background:#f5f7fb;color:#111827}
 .wrap{max-width:1400px;margin:0 auto;padding:12px 16px}
@@ -5,7 +6,7 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-se
 .card{background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(0,0,0,.06);padding:16px;position:relative}
 .card.kpi .label{font-size:14px;color:#6b7280}
 .card.kpi .value{font-size:28px;font-weight:700;margin-top:6px}
-.card.kpi.active{outline:2px solid #2563eb}
+
 .kpi.green::before,.kpi.amber::before,.kpi.red::before,.kpi.purple::before,.kpi.blue::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;border-radius:12px 0 0 12px}
 .kpi.green::before{background:#10b981}
 .kpi.amber::before{background:#f59e0b}
@@ -20,11 +21,37 @@ select{padding:6px 8px;border-radius:8px;border:1px solid #d1d5db;background:#ff
 .filters{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:8px 0}
 .filters .btn{border:none;border-radius:10px;padding:8px 12px;background:#e5e7eb;cursor:pointer}
 .filters .btn.active{background:#2563eb;color:#fff}
-.filters .search{margin-left:auto}
-.filters input[type=search]{padding:8px 10px;border:1px solid #d1d5db;border-radius:10px;width:420px}
-.table-wrap{position:relative}
-table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border-radius:12px;overflow:hidden}
-thead th{position:sticky;top:0;background:#f9fafb;border-bottom:1px solid #e5e7eb;font-weight:600;text-align:center;padding:10px 8px}
+
+
+/* ===== Sticky Header Fix: 테이블 클리핑을 래퍼로 이동 ===== */
+.table-wrap{
+  position:relative;
+  overflow:auto;            /* 내부 스크롤 컨테이너 */
+  border-radius:12px;       /* 둥근 모서리 */
+  background:#fff;          /* 배경은 래퍼가 가짐 */
+  box-shadow:0 1px 2px rgba(0,0,0,.06); /* 카드 느낌 유지 */
+}
+
+table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  background:transparent;   /* 배경은 래퍼로 이동 */
+  overflow:visible;         /* 🔴 sticky 방해 금지 (기존 hidden 제거) */
+}
+
+thead th{
+  position:sticky;
+  top:0;
+  z-index:5;                /* 본문 셀보다 위 */
+  background:#f9fafb;
+  border-bottom:1px solid #e5e7eb;
+  font-weight:600;
+  text-align:center;
+  padding:10px 8px;
+  box-shadow: inset 0 -1px 0 #e5e7eb; /* 얇은 하단 경계선 */
+}
+
 tbody td{padding:10px 8px;border-bottom:1px solid #f3f4f6;text-align:center}
 tbody tr:nth-child(even){background:#fbfcff}
 tbody tr.tint-green{background:#eafff5}
@@ -54,3 +81,23 @@ pre{background:#0b1020;color:#cbd5e1;padding:12px;border-radius:8px;overflow:aut
 .shot .title{background:#1f2937;color:#fff;padding:10px 12px;font-size:14px;display:flex;justify-content:space-between}
 .shot .imgwrap{display:flex;justify-content:center;background:#0b0b0b}
 .shot .imgwrap img{width:70%;height:auto;display:block}
+
+/* shots 모드일 때 필터/검색 UI 강제 비노출(이중 안전망) */
+body.mode-shots .filters { display: none !important; }
+body.mode-shots .filters .search { display: none !important; }
+body.mode-shots #search { display: none !important; }
+
+/* selectors 줄 레이아웃 */
+.selectors { display:flex; gap:8px; align-items:center; }
+.selectors .spacer { flex:1; }
+
+/* 검색창 크기 (너비는 필요 시 조정) */
+.selectors .search input[type="search"] {
+  padding:8px 10px;
+  border:1px solid #d1d5db;
+  border-radius:10px;
+  width: 520px;   /* ← 빨간 박스 폭 느낌대로 맞춰서 조정하세요 */
+}
+
+/* shots 모드에서는 검색창 숨김 (도메인 탭 전용 표시) */
+body.mode-shots .selectors .search { display:none !important; }
